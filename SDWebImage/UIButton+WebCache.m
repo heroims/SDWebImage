@@ -83,6 +83,7 @@ static char imageURLStorageKey;
                     animation.type =kCATransitionFade;
                     [sself.layer addAnimation:animation forKey:@"fade"];
                 }
+
                 [sself setImage:image forState:state];
             }
             if (completedBlock && finished) {
@@ -126,7 +127,7 @@ static char imageURLStorageKey;
                 __strong UIButton *sself = wself;
                 if (!sself) return;
                 if (image) {
-                    if (cacheType==SDImageCacheTypeNone) {
+					if (cacheType==SDImageCacheTypeNone) {
                         CATransition *animation = [CATransition animation];
                         animation.delegate = sself;
                         animation.duration = 1;

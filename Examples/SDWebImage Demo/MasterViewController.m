@@ -9,7 +9,6 @@
 #import "MasterViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "DetailViewController.h"
-#import <QuartzCore/QuartzCore.h>
 
 @interface MasterViewController () {
     NSArray *_objects;
@@ -30,7 +29,14 @@
                                                                                 style:UIBarButtonItemStylePlain
                                                                                target:self
                                                                                action:@selector(flushCache)];
+        
+        // HTTP NTLM auth example
+        // Add your NTLM image url to the array below and replace the credentials
+        [SDWebImageManager sharedManager].imageDownloader.username = @"httpwatch";
+        [SDWebImageManager sharedManager].imageDownloader.password = @"httpwatch01";
+        
         _objects = [NSArray arrayWithObjects:
+                    @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
                     @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp",
@@ -373,36 +379,10 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    cell.textLabel.text = [NSString stringWithFormat:@"Image #%d", indexPath.row];
+    cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
     cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    [cell.imageView setImageWithURL:[NSURL URLWithString:[_objects objectAtIndex:indexPath.row]]
-                   placeholderImage:[UIImage imageNamed:@"placeholder"] options:indexPath.row == 0 ? SDWebImageRefreshCached : 0 completed:^(id sender, UIImage *image, NSError *error, SDImageCacheType cacheType) {
-                       if (cacheType==SDImageCacheTypeNone) {
-                           CATransition *animation = [CATransition animation];
-                           animation.delegate = sender;
-                           animation.duration = 0.8;
-                           animation.timingFunction = UIViewAnimationCurveEaseInOut;
-                           
-                           switch (arc4random_uniform(5)) {
-                               case 0:
-                                   animation.type=@"zoomyIn";
-                                   break;
-                               case 1:
-                                   animation.type=@"rippleEffect";
-                                   break;
-                               case 2:
-                                   animation.type=@"rotate";
-                                   break;
-                               default:
-                                   animation.type =kCATransitionFade;
-                                   break;
-                           }
-                           
-                           [((UIImageView*)sender).layer addAnimation:animation forKey:@"anma"];
-
-                       }
-
-                   }];
+    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:[_objects objectAtIndex:indexPath.row]]
+                      placeholderImage:[UIImage imageNamed:@"placeholder"] options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
     return cell;
 }
 

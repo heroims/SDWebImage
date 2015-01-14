@@ -55,6 +55,15 @@ static char imageURLKey;
             dispatch_main_sync_safe(^{
                 if (!wself) return;
                 if (image) {
+                    if (cacheType==SDImageCacheTypeNone) {
+                        CATransition *animation = [CATransition animation];
+                        animation.delegate = wself;
+                        animation.duration = 0.3;
+                        animation.timingFunction = UIViewAnimationCurveEaseInOut;
+                        animation.type =kCATransitionFade;
+                        [wself.layer addAnimation:animation forKey:@"fade"];
+                    }
+
                     wself.image = image;
                     [wself setNeedsLayout];
                 } else {

@@ -75,6 +75,15 @@ static char imageURLStorageKey;
             __strong UIButton *sself = wself;
             if (!sself) return;
             if (image) {
+                if (cacheType==SDImageCacheTypeNone) {
+                    CATransition *animation = [CATransition animation];
+                    animation.delegate = sself;
+                    animation.duration = 1;
+                    animation.timingFunction = UIViewAnimationCurveEaseInOut;
+                    animation.type =kCATransitionFade;
+                    [sself.layer addAnimation:animation forKey:@"fade"];
+                }
+                
                 [sself setImage:image forState:state];
             }
             if (completedBlock && finished) {
@@ -118,6 +127,14 @@ static char imageURLStorageKey;
                 __strong UIButton *sself = wself;
                 if (!sself) return;
                 if (image) {
+                    if (cacheType==SDImageCacheTypeNone) {
+                        CATransition *animation = [CATransition animation];
+                        animation.delegate = sself;
+                        animation.duration = 1;
+                        animation.timingFunction = UIViewAnimationCurveEaseInOut;
+                        animation.type =kCATransitionFade;
+                        [sself.layer addAnimation:animation forKey:@"fade"];
+                    }
                     [sself setBackgroundImage:image forState:state];
                 }
                 if (completedBlock && finished) {

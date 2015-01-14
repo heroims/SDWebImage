@@ -83,7 +83,6 @@ static char imageURLStorageKey;
                     animation.type =kCATransitionFade;
                     [sself.layer addAnimation:animation forKey:@"fade"];
                 }
-                
                 [sself setImage:image forState:state];
             }
             if (completedBlock && finished) {

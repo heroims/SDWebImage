@@ -63,7 +63,6 @@ static char imageURLKey;
                         animation.type =kCATransitionFade;
                         [wself.layer addAnimation:animation forKey:@"fade"];
                     }
-
                     wself.image = image;
                     [wself setNeedsLayout];
                 } else {

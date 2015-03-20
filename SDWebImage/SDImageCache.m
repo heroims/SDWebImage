@@ -489,7 +489,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;
     }
-    UIApplication *application = [UIApplication sharedApplication];
+    UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
     __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
         // Clean up any unfinished task business by marking where you
         // stopped or ending the task outright.

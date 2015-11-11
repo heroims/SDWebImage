@@ -74,15 +74,12 @@ static char imageURLStorageKey;
         dispatch_main_sync_safe(^{
             __strong UIButton *sself = wself;
             if (!sself) return;
-            if (image) {
-                if (cacheType==SDImageCacheTypeNone) {
-                    CATransition *animation = [CATransition animation];
-                    animation.delegate = sself;
-                    animation.duration = 1;
-                    animation.timingFunction = UIViewAnimationCurveEaseInOut;
-                    animation.type =kCATransitionFade;
-                    [sself.layer addAnimation:animation forKey:@"fade"];
-                }
+            if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
+            {
+                completedBlock(image, error, cacheType, url);
+                return;
+            }
+            else if (image) {
                 [sself setImage:image forState:state];
             }
             if (completedBlock && finished) {
@@ -125,7 +122,12 @@ static char imageURLStorageKey;
             dispatch_main_sync_safe(^{
                 __strong UIButton *sself = wself;
                 if (!sself) return;
-                if (image) {
+                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
+                {
+                    completedBlock(image, error, cacheType, url);
+                    return;
+                }
+                else if (image) {
                     if (cacheType==SDImageCacheTypeNone) {
                         CATransition *animation = [CATransition animation];
                         animation.delegate = sself;
@@ -134,6 +136,7 @@ static char imageURLStorageKey;
                         animation.type =kCATransitionFade;
                         [sself.layer addAnimation:animation forKey:@"fade"];
                     }
+
                     [sself setBackgroundImage:image forState:state];
                 }
                 if (completedBlock && finished) {

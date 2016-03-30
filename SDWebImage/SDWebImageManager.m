@@ -180,15 +180,14 @@
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
             id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
-                __strong __typeof(weakOperation) strongOperation = weakOperation;
-                if (!strongOperation || strongOperation.isCancelled) {
+                if (weakOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
                     // See #699 for more details
                     // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
                 }
                 else if (error) {
                     dispatch_main_sync_safe(^{
-                        if (strongOperation && !strongOperation.isCancelled) {
+                        if (!weakOperation.isCancelled) {
                             completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
                         }
                     });
@@ -227,7 +226,7 @@
                             }
 
                             dispatch_main_sync_safe(^{
-                                if (strongOperation && !strongOperation.isCancelled) {
+                                if (!weakOperation.isCancelled) {
                                     completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
                                 }
                             });
@@ -239,7 +238,7 @@
                         }
 
                         dispatch_main_sync_safe(^{
-                            if (strongOperation && !strongOperation.isCancelled) {
+                            if (!weakOperation.isCancelled) {
                                 completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
                             }
                         });
@@ -248,9 +247,7 @@
 
                 if (finished) {
                     @synchronized (self.runningOperations) {
-                        if (strongOperation) {
-                            [self.runningOperations removeObject:strongOperation];
-                        }
+                        [self.runningOperations removeObject:operation];
                     }
                 }
             }];
@@ -258,17 +255,13 @@
                 [subOperation cancel];
                 
                 @synchronized (self.runningOperations) {
-                    __strong __typeof(weakOperation) strongOperation = weakOperation;
-                    if (strongOperation) {
-                        [self.runningOperations removeObject:strongOperation];
-                    }
+                    [self.runningOperations removeObject:weakOperation];
                 }
             };
         }
         else if (image) {
             dispatch_main_sync_safe(^{
-                __strong __typeof(weakOperation) strongOperation = weakOperation;
-                if (strongOperation && !strongOperation.isCancelled) {
+                if (!weakOperation.isCancelled) {
                     completedBlock(image, nil, cacheType, YES, url);
                 }
             });
@@ -279,8 +272,7 @@
         else {
             // Image not in cache and download disallowed by delegate
             dispatch_main_sync_safe(^{
-                __strong __typeof(weakOperation) strongOperation = weakOperation;
-                if (strongOperation && !weakOperation.isCancelled) {
+                if (!weakOperation.isCancelled) {
                     completedBlock(nil, nil, SDImageCacheTypeNone, YES, url);
                 }
             });
